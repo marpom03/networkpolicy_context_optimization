@@ -1,0 +1,9 @@
+hubble:
+  relay:
+    enabled: true
+  ui:
+    enabled: true
+image:
+  pullPolicy: IfNotPresent
+ipam:
+  mode: kubernetes

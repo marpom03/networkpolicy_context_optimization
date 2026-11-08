@@ -1,0 +1,28 @@
+# macOS
+.DS_Store
+
+# Python
+__pycache__/
+*.py[cod]
+.venv/
+venv/
+.pytest_cache/
+
+# Environment variables and secrets
+.env
+.env.*
+!.env.example
+*.key
+*.pem
+
+# IDE
+.idea/
+.vscode/
+
+# Hubble datasets
+data/raw/
+data/processed/
+
+# Temporary files
+*.log
+*.tmp
