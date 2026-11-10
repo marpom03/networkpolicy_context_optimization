@@ -1,0 +1,87 @@
+# OpenTelemetry Demo
+# Helm chart: 0.42.6
+# Application version: 3.1.0
+
+components:
+
+  # Application services used in experiments
+  product-catalog:
+    enabled: true
+
+  recommendation:
+    enabled: true
+
+  cart:
+    enabled: true
+
+  # Required supporting services
+  astronomy-db:
+    enabled: true
+
+  valkey-cart:
+    enabled: true
+
+  flagd:
+    enabled: true
+
+  opamp-server:
+    enabled: true
+
+  # Disable unused application services
+  accounting:
+    enabled: false
+
+  ad:
+    enabled: false
+
+  agent:
+    enabled: false
+
+  chatbot:
+    enabled: false
+
+  checkout:
+    enabled: false
+
+  currency:
+    enabled: false
+
+  email:
+    enabled: false
+
+  fraud-detection:
+    enabled: false
+
+  frontend:
+    enabled: false
+
+  frontend-proxy:
+    enabled: false
+
+  image-provider:
+    enabled: false
+
+  load-generator:
+    enabled: false
+
+  mcp:
+    enabled: false
+
+  payment:
+    enabled: false
+
+  quote:
+    enabled: false
+
+  shipping:
+    enabled: false
+
+  kafka:
+    enabled: false
+
+  telemetry-docs:
+    enabled: false
+
+# Keep the OpenTelemetry Collector enabled initially.
+# Additional observability components will be reviewed
+# after validating the application.

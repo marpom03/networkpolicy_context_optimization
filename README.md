@@ -9,15 +9,17 @@ The project investigates how to select relevant network observations under a lim
 - Kubernetes (Kind)
 - Cilium
 - Hubble
-- OpenTelemetry Demo (planned)
+- OpenTelemetry Demo
 - Python (planned)
 - Large Language Models (planned)
 
 ## Current Status
 
-The initial Kubernetes infrastructure has been deployed locally using Kind, Cilium, and Hubble.
+The local Kubernetes environment has been deployed using Kind, Cilium, and Hubble.
 
-The implementation of traffic scenarios, NetworkPolicy configurations, and context selection algorithms is planned.
+A reduced OpenTelemetry Demo deployment is running successfully, providing microservice communication for network telemetry collection.
+
+The implementation of controlled communication scenarios, NetworkPolicy configurations, and context selection algorithms is planned.
 
 ## Infrastructure
 
@@ -74,14 +76,52 @@ cilium hubble ui
 hubble observe -P --last 20
 ```
 
+### Deploy OpenTelemetry Demo
+
+The experimental environment uses a reduced deployment of OpenTelemetry Demo to provide communication between microservices.
+
+The deployment includes three application services (`recommendation`, `product-catalog`, and `cart`), along with their supporting dependencies and observability components.
+
+The built-in load generator is disabled to enable controlled execution of communication scenarios.
+
+**Versions:**
+- OpenTelemetry Demo: `3.1.0`
+- Helm chart: `0.42.6`
+
+Add the Helm repository:
+
+```bash
+helm repo add open-telemetry https://open-telemetry.github.io/opentelemetry-helm-charts
+```
+
+Update the repository:
+
+```bash
+helm repo update
+```
+
+Install OpenTelemetry Demo:
+
+```bash
+helm install otel-demo open-telemetry/opentelemetry-demo --version 0.42.6 --namespace otel-demo --create-namespace --values infrastructure/otel_values.yaml
+```
+
+Verify the deployment:
+
+```bash
+kubectl get pods -n otel-demo
+```
+
 ## Project Structure
 
 ```text
 networkpolicy_context_optimization/
 ├── infrastructure/
 │   ├── kind_config.yaml
-│   └── cilium_values.yaml
+│   ├── cilium_values.yaml
+│   └── otel_values.yaml
 ├── .gitignore
+├── LICENSE
 └── README.md
 ```
 
