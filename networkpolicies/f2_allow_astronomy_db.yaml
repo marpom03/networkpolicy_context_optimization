@@ -1,0 +1,22 @@
+---
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: f2-allow-astronomy-db
+  namespace: otel-demo
+spec:
+  podSelector:
+    matchLabels:
+      app.kubernetes.io/component: product-catalog
+
+  policyTypes:
+    - Egress
+
+  egress:
+    - to:
+        - podSelector:
+            matchLabels:
+              app.kubernetes.io/component: astronomy-db
+      ports:
+        - protocol: TCP
+          port: 5432

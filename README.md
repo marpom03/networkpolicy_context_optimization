@@ -2,24 +2,25 @@
 
 Research project focused on optimizing network telemetry selection for LLM-assisted verification of Kubernetes NetworkPolicy configurations.
 
-The project investigates how to select relevant network observations under a limited token budget while accounting for the coverage of executed communication scenarios.
+The proposed method combines policy-aware filtering, microservice dependency analysis, and telemetry aggregation to select relevant network context under a limited token budget.
 
 ## Technologies
 
-- Kubernetes (Kind)
-- Cilium
-- Hubble
+- Kubernetes (kind)
+- Cilium and Hubble
 - OpenTelemetry Demo
-- Python (planned)
+- Python
 - Large Language Models (planned)
 
 ## Current Status
 
-The local Kubernetes environment has been deployed using Kind, Cilium, and Hubble.
+A local Kubernetes environment has been deployed using kind, Cilium, and Hubble.
 
-A reduced OpenTelemetry Demo deployment is running successfully, providing microservice communication for network telemetry collection.
+A reduced OpenTelemetry Demo deployment is running with selected microservices and supporting components.
 
-The implementation of controlled communication scenarios, NetworkPolicy configurations, and context selection algorithms is planned.
+Three functional communication scenarios (F1–F3) have been implemented and tested. Their NetworkPolicy configurations were validated through controlled blocking and restoration of network communication, with results observed in Hubble.
+
+Initial Python-based telemetry analysis is available. Experiment automation, the proposed context selection algorithm, and LLM integration are planned.
 
 ## Infrastructure
 
@@ -30,7 +31,7 @@ The local Kubernetes cluster consists of:
 - Cilium 1.20.4
 - Hubble Relay and Hubble UI
 
-Configuration files are available in the `infrastructure/` directory.
+Configuration files are available in `infrastructure/`.
 
 ### Create the Kubernetes Cluster
 
@@ -40,27 +41,10 @@ kind create cluster --name networkpolicy-lab --config infrastructure/kind_config
 
 ### Install Cilium and Hubble
 
-Add the Helm repository:
-
 ```bash
 helm repo add cilium https://helm.cilium.io/
-```
-
-Update the repository:
-
-```bash
 helm repo update
-```
-
-Install Cilium using the saved configuration:
-
-```bash
 helm install cilium cilium/cilium --version 1.20.4 --namespace kube-system --values infrastructure/cilium_values.yaml
-```
-
-Verify the installation:
-
-```bash
 cilium status --wait
 ```
 
@@ -78,48 +62,56 @@ hubble observe -P --last 20
 
 ### Deploy OpenTelemetry Demo
 
-The experimental environment uses a reduced deployment of OpenTelemetry Demo to provide communication between microservices.
+The environment uses a reduced OpenTelemetry Demo deployment with three application services (`recommendation`, `product-catalog`, and `cart`) and their supporting dependencies.
 
-The deployment includes three application services (`recommendation`, `product-catalog`, and `cart`), along with their supporting dependencies and observability components.
-
-The built-in load generator is disabled to enable controlled execution of communication scenarios.
+The built-in load generator is disabled to enable controlled experiments.
 
 **Versions:**
 - OpenTelemetry Demo: `3.1.0`
 - Helm chart: `0.42.6`
 
-Add the Helm repository:
-
 ```bash
 helm repo add open-telemetry https://open-telemetry.github.io/opentelemetry-helm-charts
-```
-
-Update the repository:
-
-```bash
 helm repo update
-```
-
-Install OpenTelemetry Demo:
-
-```bash
 helm install otel-demo open-telemetry/opentelemetry-demo --version 0.42.6 --namespace otel-demo --create-namespace --values infrastructure/otel_values.yaml
-```
-
-Verify the deployment:
-
-```bash
 kubectl get pods -n otel-demo
 ```
+
+## Functional Scenarios
+
+Three communication dependencies have been tested:
+
+| Scenario | Dependency | NetworkPolicy direction |
+|---|---|---|
+| F1 | `recommendation → product-catalog` (TCP/8080) | Ingress |
+| F2 | `product-catalog → astronomy-db` (TCP/5432) | Egress |
+| F3 | `cart → valkey-cart` (TCP/6379) | Egress |
+
+Each scenario was verified by blocking and restoring the required connection, observing application behavior and Hubble network flows.
+
+Scenario definitions are available in `scenarios/`, and NetworkPolicy manifests in `networkpolicies/`.
 
 ## Project Structure
 
 ```text
 networkpolicy_context_optimization/
 ├── infrastructure/
-│   ├── kind_config.yaml
 │   ├── cilium_values.yaml
+│   ├── kind_config.yaml
 │   └── otel_values.yaml
+├── networkpolicies/
+│   ├── f1_allow_recommendation.yaml
+│   ├── f1_isolate_product_catalog_ingress.yaml
+│   ├── f2_allow_astronomy_db.yaml
+│   ├── f2_allow_auxiliary_egress.yaml
+│   ├── f3_allow_auxiliary_egress.yaml
+│   └── f3_allow_valkey_cart.yaml
+├── scenarios/
+│   └── functional_scenarios.yaml
+├── src/
+│   └── analyze_flows.py
+├── pyproject.toml
+├── .python-version
 ├── .gitignore
 ├── LICENSE
 └── README.md
@@ -127,13 +119,17 @@ networkpolicy_context_optimization/
 
 ## Research Scope
 
-The planned research focuses on:
+The research focuses on:
 
-1. Policy-aware selection of relevant network telemetry.
-2. Context selection under a fixed token budget.
-3. Accounting for executed and unexecuted communication scenarios.
-4. Evaluating LLM-based detection of excessive NetworkPolicy permissions.
+1. Policy-aware and dependency-aware telemetry selection.
+2. Reducing redundant network observations.
+3. Optimizing context selection under a limited token budget.
+4. Evaluating LLM-based NetworkPolicy verification across correct, missing, excessive, and mixed configurations.
 
-## Development Status
+**Next steps:** Automate experimental data collection, implement the context selection algorithm, and evaluate it against baseline methods.
 
-Work in progress.
+## Acknowledgments
+
+This project uses [OpenTelemetry Demo](https://github.com/open-telemetry/opentelemetry-demo), an open-source microservice application developed by the OpenTelemetry community, as its experimental environment.
+
+OpenTelemetry Demo is licensed under the [Apache License 2.0](https://github.com/open-telemetry/opentelemetry-demo/blob/main/LICENSE).

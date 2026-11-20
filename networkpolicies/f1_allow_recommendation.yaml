@@ -1,0 +1,24 @@
+---
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: f1-allow-recommendation
+  namespace: otel-demo
+spec:
+  podSelector:
+    matchLabels:
+      app.kubernetes.io/component: product-catalog
+
+  policyTypes:
+    - Ingress
+
+  ingress:
+    # F1: Recommendation Service -> Product Catalog
+    # Required for generating product recommendations
+    - from:
+        - podSelector:
+            matchLabels:
+              app.kubernetes.io/component: recommendation
+      ports:
+        - protocol: TCP
+          port: 8080

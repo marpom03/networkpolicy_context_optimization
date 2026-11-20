@@ -1,0 +1,17 @@
+---
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: f1-isolate-product-catalog-ingress
+  namespace: otel-demo
+spec:
+  podSelector:
+    matchLabels:
+      app.kubernetes.io/component: product-catalog
+
+  policyTypes:
+    - Ingress
+
+  # Isolate Product Catalog ingress traffic
+  # Other NetworkPolicies may explicitly allow selected connections
+  ingress: []

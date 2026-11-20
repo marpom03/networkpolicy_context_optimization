@@ -1,0 +1,55 @@
+---
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: f3-allow-auxiliary-egress
+  namespace: otel-demo
+spec:
+  podSelector:
+    matchLabels:
+      app.kubernetes.io/component: cart
+
+  policyTypes:
+    - Egress
+
+  egress:
+    # Kubernetes DNS
+    - to:
+        - namespaceSelector:
+            matchLabels:
+              kubernetes.io/metadata.name: kube-system
+          podSelector:
+            matchLabels:
+              k8s-app: kube-dns
+      ports:
+        - protocol: UDP
+          port: 53
+        - protocol: TCP
+          port: 53
+
+    # OpenTelemetry Collector
+    - to:
+        - podSelector:
+            matchLabels:
+              component: agent-collector
+      ports:
+        - protocol: TCP
+          port: 4317
+
+    # Feature flags
+    - to:
+        - podSelector:
+            matchLabels:
+              app.kubernetes.io/component: flagd
+      ports:
+        - protocol: TCP
+          port: 8013
+
+    # OpenTelemetry OpAMP
+    - to:
+        - podSelector:
+            matchLabels:
+              app.kubernetes.io/component: opamp-server
+      ports:
+        - protocol: TCP
+          port: 4320

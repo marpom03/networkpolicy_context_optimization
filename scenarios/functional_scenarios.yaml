@@ -1,0 +1,43 @@
+---
+scenarios:
+  F1:
+    name: recommendations
+    description: Generate product recommendations
+    trigger:
+      client_pod: recommendation
+      service: recommendation
+      method: ListRecommendations
+      port: 8080
+    target_dependency:
+      source: recommendation
+      destination: product-catalog
+      protocol: TCP
+      port: 8080
+
+  F2:
+    name: product_catalog
+    description: Retrieve product catalog
+    trigger:
+      client_pod: recommendation
+      service: product-catalog
+      method: ListProducts
+      port: 8080
+    target_dependency:
+      source: product-catalog
+      destination: astronomy-db
+      protocol: TCP
+      port: 5432
+
+  F3:
+    name: cart
+    description: Retrieve shopping cart
+    trigger:
+      client_pod: recommendation
+      service: cart
+      method: GetCart
+      port: 8080
+    target_dependency:
+      source: cart
+      destination: valkey-cart
+      protocol: TCP
+      port: 6379
